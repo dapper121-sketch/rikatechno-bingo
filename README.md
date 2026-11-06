@@ -1,45 +1,16 @@
-# RikaTechno Bingo V4 — GitHub Pages + Supabase
+# RikaTechno Bingo V5.1 — Recuperação de cartelas
 
-## 1. Banco e login
-1. No Supabase, abra seu projeto (ou crie um novo) e **SQL Editor**.
-2. Execute `supabase.sql` completo.
-3. Em **Authentication > Users**, crie seu usuário de administrador (e-mail/senha). Verifique se o usuário foi criado.
-4. Volte ao SQL Editor e execute o `insert into public.bingo_admins` comentado no final do SQL, trocando pelo seu e-mail exato.
-5. Em **Project Settings > API** (ou **Connect**), copie a **Project URL** e a chave **anon/publishable**. NUNCA use `service_role` ou secret key no frontend.
-6. Coloque esses dois valores em `config.js`.
+## Instalação
+1. Se o SQL da V5 ainda NÃO foi executado, execute primeiro `upgrade_v5.sql` no Supabase. Caso a V5 já esteja instalada, não precisa repetir.
+2. Execute `upgrade_v5_1.sql` no SQL Editor do **mesmo** projeto Supabase. Não apaga rodadas nem históricos.
+3. No GitHub `dapper121-sketch/rikatechno-bingo`, substitua **somente** `index.html` pelo arquivo deste pacote. Os demais arquivos já devem estar publicados; estão incluídos apenas como cópia. O Render deverá atualizar se o deploy automático estiver ativo.
+4. Faça login de Organizador. Em Histórico de cartelas finalizadas, abra uma entrada, use **Visualizar cartela fechada** para conferir os números, ou **Reabrir e continuar** para restaurar uma cópia.
 
-## 2. GitHub
-No repositório `dapper121-sketch/rikatechno-bingo`, substitua `index.html` e envie `config.js` e todos os arquivos `favicon*` e `logo-rikatechno.png`. NÃO envie `supabase.sql` se preferir manter simples. O site continua no GitHub Pages. Para testes, acesse `https://dapper121-sketch.github.io/rikatechno-bingo/`.
-
-## 3. Domínio
-Para `bingo.rikatechno.com.br` no seu painel de DNS, crie um registro **CNAME** host `bingo` apontando para `dapper121-sketch.github.io` (sem `https://` e sem caminho). No repositório, **Settings > Pages > Custom domain** digite `bingo.rikatechno.com.br`, salve e habilite **Enforce HTTPS** depois do certificado. O GitHub criará/atualizará o CNAME. Não coloque o domínio Supabase como destino do DNS, porque a interface está no GitHub Pages. NÃO configure o domínio antes de substituir `rikatechno.com.br` pelo domínio real.
-
-## 4. Operação
-Todos veem a mesma cartela e os mesmos números. Para sortear, toque **Organizador**, entre com o usuário autorizado e use os botões. O banco garante ausência de repetição inclusive com dois administradores. **Sorteio automático** roda somente enquanto o navegador do organizador estiver ativo; animação de 3 segundos é visual, sem travar o banco. Atualizações ao vivo via Realtime; checagem extra a cada 5 segundos.
-
-## Segurança
-As chaves públicas do Supabase no arquivo `config.js` são previstas para browser. O banco protege escrita por RLS e funções que verificam o usuário. Não torne o `bingo_admins` público e não use secret/service_role no navegador. Se usar o mesmo projeto Supabase de outros sistemas, confira políticas e permissões separadamente. É recomendável usar um projeto exclusivo para o Bingo.
-
-## Observação
-Arquivos preparados, mas ainda não publicados e ainda não conectados ao seu projeto Supabase: faltam URL, chave pública, cadastro admin e DNS real.
-
-## Configuração específica do domínio RikaTechno
-- Em GitHub Pages > Custom domain, informe `bingo.rikatechno.com.br` e salve **antes de apontar DNS**. Isso criará/atualizará o arquivo CNAME.
-- No painel do provedor DNS de `rikatechno.com.br`, crie um CNAME com **Host** `bingo` e **Destino** `dapper121-sketch.github.io` (não inclua https nem /rikatechno-bingo). Se já houver um registro para `bingo`, edite em vez de duplicar.
-- Depois que o certificado aparecer, habilite Enforce HTTPS. Propagação DNS e certificado podem não ser imediatos.
-- Para sincronização, crie projeto Supabase `rikatechno-bingo`, execute `supabase.sql`, crie usuário admin em Authentication > Users e autorize seu email na tabela bingo_admins usando o SQL comentado. Preencha somente URL do projeto e chave **publishable/anon** em config.js.
-- Os arquivos do site já estão prontos; **não publicar a configuração com valores fictícios como sistema funcional**.
-- Publique o site apenas depois de concluir a configuração Supabase.
-
-## Projeto Supabase definido
-- Project URL: `https://iqljyiqaxyfbklsjzcdf.supabase.co` — já preenchida em `config.js`.
-- Falta copiar a **publishable key (sb_publishable_...)** em `config.js`, substituindo `COLE_A_CHAVE_PUBLICA_ANON_OU_PUBLISHABLE`.
-- Use **SQL Editor** para executar `supabase.sql` e depois criar/autorizar seu usuário administrador.
-- Nunca enviar senha, chave secret ou service_role.
-
-## Configuração atual (05/11/2026)
-- URL pública do Supabase e publishable key já foram inseridas no `config.js`.
-- Execute `supabase.sql` no SQL Editor do projeto antes de publicar o frontend.
-- Crie o usuário em Authentication > Users, e autorize o e-mail no `bingo_admins` com o INSERT comentado no fim do SQL.
-- Suba `index.html`, `config.js`, imagens e `CNAME` na raiz do repositório; não envie o SQL nem senhas.
-- A publishable key é pública por definição; a segurança depende de RLS e das funções SQL.
+## Regras importantes
+- O fechamento original nunca é modificado. Cada reabertura cria uma **nova rodada numerada** com uma cópia dos números anteriores, na mesma ordem. A rodada continua normalmente e pode ser fechada novamente, produzindo uma nova entrada de histórico ligada à origem.
+- A operação é negada caso a rodada atual esteja aberta e já possua números sorteados. Nesse caso, feche-a primeiro com BINGO.
+- Somente administradores autenticados podem reabrir e consultar o histórico; a reabertura fica gravada em `bingo_reopen_log` com origem, rodada de destino, usuário e horário.
+- A atualização é feita no banco sob trava da rodada, impedindo duas reaberturas simultâneas.
+- O histórico fechado anterior continua acessível, e os participantes enxergam automaticamente a cartela restaurada.
+- Teste primeiro com uma rodada de ensaio. Não rode `upgrade_v5_1.sql` antes do `upgrade_v5.sql`.
+- Não publique senhas ou a chave secreta do Supabase no GitHub. `config.js` contém apenas a chave pública.

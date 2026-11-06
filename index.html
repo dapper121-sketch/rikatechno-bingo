@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Cartela de Bingo • RikaTechno</title>
+<title>Bingo V5 • RikaTechno</title>
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
@@ -34,6 +34,23 @@
 .live-dot{width:9px;height:9px;display:inline-block;background:#e4a146;border-radius:50%;margin-right:7px}.live-dot.ok{background:#32d6ab;box-shadow:0 0 10px #32d6ab77}.live-dot.error{background:#f47a88}
 .adminbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.adminbar input{padding:9px 11px;border:1px solid #3a4d70;border-radius:9px;min-width:140px;max-width:210px;background:#1d2c45;color:white}.adminbar button{padding:9px 13px;border-radius:9px;background:#31445e;color:white;font-weight:700}.adminbar button:hover{background:#456280}.adminbar button:disabled{opacity:.4}.admin-only{display:none}.admin-visible .admin-only{display:inline-flex}.admin-visible select.admin-only{display:inline-block}.admin-visible .actions{display:grid}.actions{display:none}.controls-note{color:#9eb1d0;font-size:13px;margin-top:15px}.admin-visible .controls-note{display:none}.admin-visible .options{display:flex}.options{display:none}.notice{min-height:18px;color:#f4c88c;font-size:13px;margin-top:8px}
 @media(max-width:650px){.adminbar input{max-width:150px;min-width:105px}.statusbar{align-items:flex-start}.adminbar{width:100%}}
+
+.close-btn{background:linear-gradient(135deg,#e5a438,#b96c19);color:#18120b;border-color:#ffce72}.actions .close-btn{grid-column:span 2}.archive-panel{margin-top:20px}.archive-list{display:grid;gap:10px}.archive-card{border:1px solid #455573;border-radius:12px;padding:14px;background:#1a2941}.archive-card summary{cursor:pointer;font-weight:750;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.archive-card .detail{padding-top:12px;color:#c2d0e9;font-size:13px}.archive-card .drawn-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.archive-card .drawn-list span{border:1px solid #425977;background:#2b425c;border-radius:6px;padding:4px 7px}.archive-meta{color:#9bb2d4;font-size:12px}.closed-message{margin-top:12px;font-weight:850;color:#ffda81}.archive-controls{display:flex;justify-content:flex-end;gap:8px;margin:10px 0}.archive-controls button{font-size:12px}.actions .secondary{min-width:0}
+
+.archive-controls .reopen-btn{background:#a65b13;color:#fff1d0;border:1px solid #eea750}
+.archive-controls .reopen-btn:hover{background:#c67722}
+.archive-preview{margin:12px 0;padding:12px;border-radius:12px;background:#0d1930;border:1px solid #394b65}
+.archive-preview-heading{margin:0 0 9px;color:#c8d6eb;font-size:13px;font-weight:800}
+.archive-preview-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+.archive-preview-grid.is90{grid-template-columns:repeat(9,minmax(0,1fr))}
+.archive-preview-col{display:flex;flex-direction:column;gap:3px;min-width:0}
+.archive-preview-col>strong{padding:5px 0;text-align:center;border-radius:5px;background:#334c73;color:#eaf3ff;font-size:clamp(11px,1.5vw,16px)}
+.archive-preview-grid.is90 .archive-preview-col>strong{font-size:clamp(8px,1vw,12px)}
+.archive-preview-tile{text-align:center;padding:5px 0;background:#26364f;color:#91a3bf;border-radius:5px;font-size:clamp(10px,1.3vw,14px)}
+.archive-preview-tile.hit{background:#38d6ae;color:#083d31;font-weight:900}
+.archive-preview-tile.latest{background:#ffdc7c;color:#392800;font-weight:900}
+.archive-origin{color:#ffce83;font-size:12px;margin-top:8px}
+@media(max-width:600px){.archive-preview{padding:6px}.archive-preview-grid{gap:3px}.archive-preview-tile{font-size:10px;padding:3px 0}.archive-preview-grid.is90 .archive-preview-tile{font-size:9px}}
 </style>
 </head>
 <body>
@@ -41,17 +58,17 @@
  <header class="top"><div class="brandline"><img class="brandlogo" src="logo-rikatechno.png" alt="Logo RikaTechno" width="48" height="48"><div><div class="brand">BINGO<span>•</span> LIVE</div><div class="sub">Sorteador de números • RikaTechno</div></div></div><div class="settings"><label class="small">Modalidade <select class="select" id="mode" disabled><option value="75">1 a 75 (B-I-N-G-O)</option><option value="90">1 a 90 (Bingo 90)</option></select></label><button class="screenbutton" id="fullscreen" type="button">⛶ Tela cheia</button></div></header>
  <div class="statusbar"><span><span class="live-dot" id="dot"></span><span id="status">Conectando ao Supabase...</span></span><div class="adminbar"><button id="showlogin">🔐 Organizador</button><input id="email" type="email" autocomplete="username" placeholder="E-mail" hidden><input id="password" type="password" autocomplete="current-password" placeholder="Senha" hidden><button id="login" hidden>Entrar</button><button id="logout" hidden>Sair</button></div></div>
  <div class="layout">
-  <section class="panel draw" aria-label="Sorteio"><div class="eyebrow">Última bola sorteada</div><div class="ball" id="ball" aria-live="polite" aria-atomic="true"><span class="empty">?</span></div><div class="count">Sorteados: <strong id="counter">0 / 75</strong></div><div class="actions"><button id="draw" class="primary">🎱 SORTEAR NÚMERO</button><button id="auto" class="secondary">▶ Automático</button><button id="reset" class="secondary">↻ Reiniciar</button></div><div class="options"><label class="switch"><input type="checkbox" id="voice"> Anunciar por voz</label><label class="interval">Pausa entre bolas <select id="seconds" class="select"><option value="3">3 s</option><option value="5" selected>5 s</option><option value="8">8 s</option><option value="10">10 s</option><option value="15">15 s</option></select></label></div><div class="note">Cada sorteio é registrado no Supabase e enviado a todos os aparelhos. A animação dura 3 segundos.</div><div class="controls-note">Acompanhe o bingo ao vivo. Somente o organizador pode sortear.</div><div id="notice" class="notice" role="status"></div></section>
-  <section class="panel" aria-label="Cartela de números"><div class="boardtitle"><h2>Cartela do bingo</h2><div class="legend">● Verde: sorteado • Dourado: último</div></div><div class="board bingo-card" id="board" role="grid" aria-label="Cartela de bingo"></div><div class="history"><h3>Histórico dos sorteios (mais recentes primeiro)</h3><div class="chips" id="history"><span class="muted">Nenhum número sorteado ainda.</span></div></div></section>
- </div><div class="footer">RikaTechno Bingo ao vivo • Supabase Realtime • GitHub Pages</div>
+  <section class="panel draw" aria-label="Sorteio"><div class="eyebrow">Última bola sorteada</div><div class="ball" id="ball" aria-live="polite" aria-atomic="true"><span class="empty">?</span></div><div class="count">Sorteados: <strong id="counter">0 / 75</strong></div><div class="actions"><button id="draw" class="primary">🎱 SORTEAR NÚMERO</button><button id="auto" class="secondary">▶ Automático</button><button id="close" class="secondary close-btn">🏆 Fechar cartela — BINGO!</button><button id="reset" class="secondary">↻ Nova cartela</button></div><div class="options"><label class="switch"><input type="checkbox" id="voice"> Anunciar por voz</label><label class="interval">Pausa entre bolas <select id="seconds" class="select"><option value="3">3 s</option><option value="5" selected>5 s</option><option value="8">8 s</option><option value="10">10 s</option><option value="15">15 s</option></select></label></div><div class="note">Cada sorteio é registrado no Supabase e enviado a todos os aparelhos. A animação dura 3 segundos.</div><div class="controls-note">Acompanhe o bingo ao vivo. Somente o organizador pode sortear.</div><div id="notice" class="notice" role="status"></div></section>
+  <section class="panel" aria-label="Cartela de números"><div class="boardtitle"><h2>Cartela do bingo</h2><div class="legend">● Verde: sorteado • Dourado: último</div></div><div class="board bingo-card" id="board" role="grid" aria-label="Cartela de bingo"></div><div class="history"><h3>Histórico da cartela atual (mais recentes primeiro)</h3><div class="chips" id="history"><span class="muted">Nenhum número sorteado ainda.</span></div></div></section>
+ </div><section class="panel archive-panel" aria-label="Histórico de cartelas encerradas"><div class="boardtitle"><h2>🏆 Histórico de cartelas finalizadas</h2><button id="refreshArchive" class="secondary admin-only" type="button">Atualizar</button></div><p class="muted">As cartelas fechadas permanecem no Supabase. O organizador pode visualizar ou reabrir como uma nova continuação sem apagar o registro original.</p><div id="archiveList" class="archive-list"><span class="muted">Faça login como organizador para consultar.</span></div></section><div class="footer">RikaTechno Bingo ao vivo • Supabase Realtime • GitHub Pages</div>
 </main>
 <script src="config.js"></script>
 <script>
 (()=>{
 'use strict';
 // Substitua pelos dados PÚBLICOS do Supabase em config.js; nunca use service_role aqui.
-const CONFIG=window.BINGO_CONFIG||{}, $=id=>document.getElementById(id), mode=$('mode'),ball=$('ball'),board=$('board'),history=$('history'),counter=$('counter'),drawBtn=$('draw'),autoBtn=$('auto'),resetBtn=$('reset'),voice=$('voice'),seconds=$('seconds'),status=$('status'),dot=$('dot'),notice=$('notice');
-let db=null,size=75,drawn=[],admin=false,auto=false,spinning=false,autoTimer=null,spinTimer=null,rev=0,lastShown=null,channel=null;
+const CONFIG=window.BINGO_CONFIG||{}, $=id=>document.getElementById(id), mode=$('mode'),ball=$('ball'),board=$('board'),history=$('history'),counter=$('counter'),drawBtn=$('draw'),autoBtn=$('auto'),resetBtn=$('reset'),closeBtn=$('close'),archiveList=$('archiveList'),voice=$('voice'),seconds=$('seconds'),status=$('status'),dot=$('dot'),notice=$('notice');
+let db=null,size=75,drawn=[],admin=false,auto=false,spinning=false,autoTimer=null,spinTimer=null,rev=0,lastShown=null,channel=null,closed=false,roundNumber=1,restoredFrom=null;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const sayStatus=(message,state='')=>{status.textContent=message;dot.className='live-dot '+state};
 const msg=text=>{notice.textContent=text||''};
@@ -62,34 +79,76 @@ function render(){const last=drawn.at(-1),set=new Set(drawn);board.replaceChildr
  for(let c=0;c<groups;c++){const col=document.createElement('div');col.className='bingo-col';const h=document.createElement('div');h.className='bingo-heading heading-'+(c%5);h.textContent=size===75?'BINGO'[c]:`${c*10+1}–${(c+1)*10}`;col.appendChild(h);for(let n=c*per+1;n<=(c+1)*per;n++)col.appendChild(tile(n));board.appendChild(col)}
  ball.classList.remove('spinning');ball.replaceChildren();if(last){if(size===75){const tag=document.createElement('small');tag.textContent=letter(last);ball.appendChild(tag)}const num=document.createElement('strong');num.textContent=String(last).padStart(2,'0');ball.appendChild(num)}else{const x=document.createElement('span');x.className='empty';x.textContent='?';ball.appendChild(x)}
  counter.textContent=`${drawn.length} / ${size}`;history.replaceChildren();if(!drawn.length){const x=document.createElement('span');x.className='muted';x.textContent='Nenhum número sorteado ainda.';history.appendChild(x)}else for(const n of [...drawn].reverse()){const x=document.createElement('span');x.className='chip';x.textContent=(size===75?letter(n)+' • ':'')+String(n).padStart(2,'0');history.appendChild(x)}
- mode.value=String(size);drawBtn.disabled=!admin||spinning||drawn.length===size;resetBtn.disabled=!admin||spinning||!drawn.length;mode.disabled=!admin||spinning;autoBtn.disabled=!admin||drawn.length===size;
+ mode.value=String(size);drawBtn.disabled=!admin||spinning||closed||drawn.length===size;resetBtn.disabled=!admin||spinning||(!closed&&drawn.length>0);closeBtn.disabled=!admin||spinning||closed||!drawn.length;closeBtn.textContent=closed?'✓ Cartela fechada':'🏆 Fechar cartela — BINGO!';resetBtn.textContent='↻ Nova cartela';mode.disabled=!admin||spinning||closed||!!drawn.length;autoBtn.disabled=!admin||closed||drawn.length===size;document.querySelector('.eyebrow').textContent=closed?'CARTELA ENCERRADA':`Rodada #${roundNumber}${restoredFrom?' • Recuperada':''} • Última bola`; 
  }
 function speak(n){if(!voice.checked||!('speechSynthesis'in window))return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(size===75?`${letter(n)}, ${n}`:`Número ${n}`);u.lang='pt-BR';u.rate=.86;speechSynthesis.speak(u)}catch{}}
 function showSpin(){spinning=true;ball.classList.remove('spinning','pop');ball.replaceChildren();const x=document.createElement('span');x.className='spin-content';x.textContent=size===75?'BINGO':'90';ball.appendChild(x);const y=document.createElement('span');y.className='spin-caption';y.textContent='SORTEANDO...';ball.appendChild(y);void ball.offsetWidth;ball.classList.add('spinning');drawBtn.disabled=true;resetBtn.disabled=true;mode.disabled=true}
 function clearSpin(){if(spinTimer){clearTimeout(spinTimer);spinTimer=null}spinning=false}
 function applyGame(g,animate=true){if(!g)return;const nextDrawn=Array.isArray(g.drawn)?g.drawn:[],nextRev=Number(g.revision||0),nextSize=g.mode;
- if(nextRev<rev)return;if(nextRev===rev&&nextDrawn.length===drawn.length&&nextSize===size)return;
+ if(nextRev<rev)return;if(nextRev===rev&&nextDrawn.length===drawn.length&&nextSize===size&&closed===!!g.closed&&roundNumber===Number(g.round_number||1))return;
  const changedMode=nextSize!==size,added=nextDrawn.length===drawn.length+1&&!changedMode&&drawn.every((n,i)=>n===nextDrawn[i]),n=nextDrawn.at(-1);
- rev=nextRev;size=nextSize;drawn=nextDrawn.slice();if(changedMode||!added){clearSpin();render();return}
+ rev=nextRev;size=nextSize;drawn=nextDrawn.slice();closed=!!g.closed;roundNumber=Number(g.round_number||1);restoredFrom=g.restored_from_history_id||null;if(closed)stopAuto();if(changedMode||!added){clearSpin();render();return}
  clearSpin();if(!animate){render();return}showSpin();spinTimer=setTimeout(()=>{spinTimer=null;spinning=false;render();ball.classList.add('pop');if(n!==lastShown){lastShown=n;speak(n)}},3000)
 }
-async function loadGame(animate=false){if(!db)return;const {data,error}=await db.from('bingo_games').select('mode,drawn,revision').eq('id',1).single();if(error){sayStatus('Erro ao carregar o bingo','error');msg(error.message);return}applyGame(data,animate);sayStatus('Conectado • Bingo ao vivo','ok')}
+async function loadGame(animate=false){if(!db)return;const {data,error}=await db.from('bingo_games').select('mode,drawn,revision,closed,round_number,restored_from_history_id').eq('id',1).single();if(error){sayStatus('Erro ao carregar o bingo','error');msg(error.message);return}applyGame(data,animate);sayStatus('Conectado • Bingo ao vivo','ok')}
 async function rpc(name,args={}){if(!admin||!db)return null;msg('');try{const {data,error}=await db.rpc(name,args);if(error)throw error;if(data?.id===1)applyGame(data,true);return data}catch(e){msg('Não foi possível executar: '+e.message);return null}}
-async function draw(){if(!admin||spinning||drawn.length>=size)return;const oldRev=rev;drawBtn.disabled=true;showSpin();const result=await rpc('bingo_draw');if(!result){clearSpin();render();return}if(result.revision===oldRev){clearSpin();render()}}
+async function draw(){if(!admin||spinning||closed||drawn.length>=size)return;const oldRev=rev;drawBtn.disabled=true;showSpin();const result=await rpc('bingo_draw');if(!result){clearSpin();render();return}if(result.revision===oldRev){clearSpin();render()}}
 function stopAuto(){auto=false;if(autoTimer){clearTimeout(autoTimer);autoTimer=null}autoBtn.textContent='▶ Automático'}
-async function runAuto(){if(!auto||!admin)return;await draw();if(!auto)return;if(drawn.length>=size){stopAuto();return}autoTimer=setTimeout(()=>{autoTimer=null;runAuto()},3000+Number(seconds.value)*1000)}
-function toggleAuto(){if(auto){stopAuto();return}if(!admin||drawn.length>=size)return;auto=true;autoBtn.textContent='⏸ Pausar';runAuto()}
-async function changeMode(){const wanted=Number(mode.value);mode.value=String(size);if(!admin||spinning||wanted===size)return;if(drawn.length&&!confirm('Alterar modalidade reinicia a rodada para todos. Continuar?'))return;stopAuto();const g=await rpc('bingo_set_mode',{new_mode:wanted});if(g){clearSpin();applyGame(g,false);await loadGame(false)}}
-async function reset(){if(!admin||spinning||!drawn.length)return;if(!confirm('Reiniciar este bingo para TODOS os participantes?'))return;stopAuto();await rpc('bingo_reset');await loadGame(false)}
+async function runAuto(){if(!auto||!admin||closed)return;await draw();if(!auto)return;if(drawn.length>=size){stopAuto();return}autoTimer=setTimeout(()=>{autoTimer=null;runAuto()},3000+Number(seconds.value)*1000)}
+function toggleAuto(){if(auto){stopAuto();return}if(!admin||closed||drawn.length>=size)return;auto=true;autoBtn.textContent='⏸ Pausar';runAuto()}
+async function changeMode(){const wanted=Number(mode.value);mode.value=String(size);if(!admin||spinning||closed||wanted===size)return;if(drawn.length){msg('Feche a cartela atual e inicie uma nova rodada antes de mudar a modalidade.');return;}stopAuto();const g=await rpc('bingo_set_mode',{new_mode:wanted});if(g){clearSpin();applyGame(g,false);await loadGame(false)}}
+async function closeRound(){if(!admin||spinning||closed||!drawn.length)return;stopAuto();
+ const winner=prompt('Nome do ganhador (opcional; deixe em branco se preferir):','');if(winner===null)return;
+ const notes=prompt('Observação sobre a cartela (opcional):','');if(notes===null)return;
+ if(!confirm(`Fechar e salvar a rodada #${roundNumber} com ${drawn.length} números? Ela ficará somente para consulta.`))return;
+ const g=await rpc('bingo_close',{winner_name:(winner||'').trim().slice(0,120),notes:(notes||'').trim().slice(0,500)});
+ if(g){await loadGame(false);await loadArchive();msg('Cartela fechada e arquivada! Agora clique em Nova cartela para iniciar outra.')}}
+async function reset(){if(!admin||spinning)return;stopAuto();if(!closed&&drawn.length){msg('Para preservar o histórico, feche a cartela com o botão BINGO antes de iniciar outra.');return}
+ if(!confirm('Iniciar uma nova cartela para TODOS os participantes?'))return;
+ const g=await rpc('bingo_new_round');if(g){clearSpin();await loadGame(false);msg('Nova cartela iniciada.')}}
+const formatDate=d=>new Date(d).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'});
+async function loadArchive(){if(!db||!admin){archiveList.replaceChildren();const x=document.createElement('span');x.className='muted';x.textContent='Faça login como organizador para consultar.';archiveList.appendChild(x);return}
+ const {data,error}=await db.from('bingo_round_history').select('id,round_number,mode,drawn,closed_at,winner_name,notes,restored_from_history_id').order('closed_at',{ascending:false}).limit(100);
+ archiveList.replaceChildren();if(error){archiveList.textContent='Falha ao consultar histórico: '+error.message;return}
+ if(!data?.length){archiveList.textContent='Nenhuma cartela finalizada ainda.';return}
+ for(const item of data){const card=document.createElement('details');card.className='archive-card';const summary=document.createElement('summary');summary.textContent=`Rodada #${item.round_number} · ${item.mode} números · ${item.drawn.length} sorteados`;const date=document.createElement('span');date.className='archive-meta';date.textContent=formatDate(item.closed_at);summary.appendChild(date);card.appendChild(summary);
+ const detail=document.createElement('div');detail.className='detail';const meta=document.createElement('p');meta.textContent=`Ganhador: ${item.winner_name||'Não informado'} • Fechada em ${formatDate(item.closed_at)}`;detail.appendChild(meta);
+ if(item.notes){const note=document.createElement('p');note.textContent='Observações: '+item.notes;detail.appendChild(note)}
+ if(item.restored_from_history_id){const origin=document.createElement('p');origin.className='archive-origin';origin.textContent=`Esta rodada é continuação da cartela arquivada ID ${item.restored_from_history_id}.`;detail.appendChild(origin)}
+ const preview=document.createElement('details');preview.className='archive-preview';
+ const previewLabel=document.createElement('summary');previewLabel.className='archive-preview-heading';previewLabel.textContent='👁 Visualizar cartela fechada';preview.appendChild(previewLabel);
+ const previewGrid=document.createElement('div');previewGrid.className='archive-preview-grid'+(item.mode===90?' is90':'');const used=new Set(item.drawn),last=item.drawn.at(-1),per=item.mode===75?15:10,cols=item.mode===75?5:9;
+ for(let c=0;c<cols;c++){const col=document.createElement('div');col.className='archive-preview-col';const h=document.createElement('strong');h.textContent=item.mode===75?'BINGO'[c]:`${c*10+1}-${c*10+10}`;col.appendChild(h);for(let n=c*per+1;n<=(c+1)*per;n++){const tile=document.createElement('span');tile.className='archive-preview-tile'+(used.has(n)?' hit':'')+(last===n?' latest':'');tile.textContent=String(n).padStart(2,'0');col.appendChild(tile)}previewGrid.appendChild(col)}
+ preview.appendChild(previewGrid);detail.appendChild(preview);
+
+ const ordered=document.createElement('div');ordered.className='drawn-list';for(const n of item.drawn){const t=document.createElement('span');t.textContent=(item.mode===75?'BINGO'[Math.floor((n-1)/15)]+'-':'')+String(n).padStart(2,'0');ordered.appendChild(t)}detail.appendChild(ordered);
+ const controls=document.createElement('div');controls.className='archive-controls';const copy=document.createElement('button');copy.className='secondary';copy.type='button';copy.textContent='Copiar resultado';copy.addEventListener('click',async()=>{const result=`RikaTechno Bingo #${item.round_number}\nModo: ${item.mode}\nFechada: ${formatDate(item.closed_at)}\nGanhador: ${item.winner_name||'Não informado'}\nOrdem dos números: ${item.drawn.join(', ')}`;try{await navigator.clipboard.writeText(result);msg('Resultado copiado.')}catch{msg('Não foi possível copiar automaticamente.')}});controls.appendChild(copy);
+ const reopen=document.createElement('button');reopen.className='secondary reopen-btn';reopen.type='button';reopen.textContent='🔓 Reabrir e continuar';reopen.addEventListener('click',()=>reopenRound(item));controls.appendChild(reopen);
+ detail.appendChild(controls);card.appendChild(detail);archiveList.appendChild(card)}
+}
+
+async function reopenRound(item){
+ if(!admin||spinning)return;
+ stopAuto();
+ // Atualiza o estado antes de permitir sobrescrever uma rodada.
+ const {data:current,error}=await db.from('bingo_games').select('mode,drawn,revision,closed,round_number,restored_from_history_id').eq('id',1).single();
+ if(error){msg('Falha ao conferir cartela atual: '+error.message);return}
+ applyGame(current,false);
+ if(!current.closed&&current.drawn.length>0){msg('Há uma cartela em andamento. Feche-a primeiro com BINGO antes de reabrir outra.');return}
+ const label=`Rodada #${item.round_number} (${item.mode} números, ${item.drawn.length} já sorteados)`;
+ if(!confirm(`Reabrir ${label}?\n\nSerá criada uma NOVA rodada com os mesmos números, na mesma ordem. O registro do fechamento original continuará salvo. Todos os participantes verão a cartela recuperada.`))return;
+ const g=await rpc('bingo_reopen',{source_history_id:item.id});
+ if(g){clearSpin();await loadGame(false);await loadArchive();msg(`Cartela recuperada como rodada #${g.round_number}. Continue sorteando normalmente.`)}
+}
 async function updateAuth(){const {data:{session}}=await db.auth.getSession();let allowed=false;if(session){const {data,error}=await db.rpc('bingo_is_admin');allowed=!error&&data===true}admin=allowed;document.body.classList.toggle('admin-visible',admin);
- $('showlogin').hidden=!!session;$('logout').hidden=!session;$('email').hidden=true;$('password').hidden=true;$('login').hidden=true;if(session&&!admin)msg('Conta conectada, mas sem permissão de organizador.');else msg('');if(!admin)stopAuto();render()}
+ $('showlogin').hidden=!!session;$('logout').hidden=!session;$('email').hidden=true;$('password').hidden=true;$('login').hidden=true;if(session&&!admin)msg('Conta conectada, mas sem permissão de organizador.');else msg('');if(!admin)stopAuto();render();await loadArchive()}
 function setupAuth(){const show=$('showlogin'),email=$('email'),pwd=$('password'),login=$('login');show.addEventListener('click',()=>{email.hidden=!email.hidden;pwd.hidden=email.hidden;login.hidden=email.hidden;if(!email.hidden)email.focus()});login.addEventListener('click',async()=>{msg('Conferindo acesso...');const {error}=await db.auth.signInWithPassword({email:email.value.trim(),password:pwd.value});if(error){msg('Falha no login: '+error.message);return}pwd.value='';await updateAuth()});pwd.addEventListener('keydown',e=>{if(e.key==='Enter')login.click()});$('logout').addEventListener('click',async()=>{await db.auth.signOut();await updateAuth()});db.auth.onAuthStateChange(()=>{setTimeout(updateAuth,0)})}
 async function init(){render();if(!CONFIG.url||!CONFIG.anonKey||CONFIG.url.includes('SEU-PROJETO')){sayStatus('Falta configurar o Supabase em config.js','error');msg('Informe URL e chave pública no arquivo config.js antes de publicar.');return}
  if(!window.supabase){sayStatus('Biblioteca Supabase indisponível','error');return}
- db=window.supabase.createClient(CONFIG.url,CONFIG.anonKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});setupAuth();await loadGame(false);await updateAuth();channel=db.channel('bingo-live').on('postgres_changes',{event:'UPDATE',schema:'public',table:'bingo_games',filter:'id=eq.1'},payload=>applyGame(payload.new,true)).subscribe(s=>{if(s==='SUBSCRIBED')sayStatus('Conectado • Atualização em tempo real','ok')});
+ db=window.supabase.createClient(CONFIG.url,CONFIG.anonKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});setupAuth();await loadGame(false);await updateAuth();channel=db.channel('bingo-live').on('postgres_changes',{event:'UPDATE',schema:'public',table:'bingo_games',filter:'id=eq.1'},payload=>{const wasClosed=closed;applyGame(payload.new,true);if(!wasClosed&&payload.new.closed&&admin)loadArchive()}).subscribe(s=>{if(s==='SUBSCRIBED')sayStatus('Conectado • Atualização em tempo real','ok')});
  setInterval(()=>{if(!document.hidden)loadGame(true)},5000);
  }
-drawBtn.addEventListener('click',draw);autoBtn.addEventListener('click',toggleAuto);resetBtn.addEventListener('click',reset);mode.addEventListener('change',changeMode);$('fullscreen').addEventListener('click',()=>{if(document.fullscreenElement)document.exitFullscreen?.();else document.documentElement.requestFullscreen?.()});document.addEventListener('keydown',e=>{if(e.code==='Space'&&!e.repeat&&admin&&!['BUTTON','SELECT','INPUT'].includes(document.activeElement?.tagName)){e.preventDefault();draw()}});document.addEventListener('visibilitychange',()=>{if(document.hidden)stopAuto()});
+drawBtn.addEventListener('click',draw);autoBtn.addEventListener('click',toggleAuto);resetBtn.addEventListener('click',reset);closeBtn.addEventListener('click',closeRound);$('refreshArchive').addEventListener('click',loadArchive);mode.addEventListener('change',changeMode);$('fullscreen').addEventListener('click',()=>{if(document.fullscreenElement)document.exitFullscreen?.();else document.documentElement.requestFullscreen?.()});document.addEventListener('keydown',e=>{if(e.code==='Space'&&!e.repeat&&admin&&!['BUTTON','SELECT','INPUT'].includes(document.activeElement?.tagName)){e.preventDefault();draw()}});document.addEventListener('visibilitychange',()=>{if(document.hidden)stopAuto()});
  window.addEventListener('load',init);
 })();
 </script>
